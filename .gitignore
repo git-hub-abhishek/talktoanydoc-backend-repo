@@ -3,6 +3,7 @@ dist/
 .aws-sam/
 coverage/
 scripts/
+.env
 .env.local
 *.node_modules
 .calude/*
