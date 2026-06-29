@@ -6,46 +6,46 @@
 <title>TalkToAnyDoc — AWS Serverless Architecture</title>
 <style>
   :root {
-    --bg-primary: #0f1117;
-    --bg-secondary: #1a1d27;
-    --bg-card: #1e2130;
-    --bg-lane: #161926;
-    --border-subtle: #2a2f45;
-    --border-medium: #3a4060;
-    --text-primary: #e8eaf2;
-    --text-secondary: #9aa0bc;
-    --text-muted: #636880;
+    --bg-primary: #f0f4f8;
+    --bg-secondary: #ffffff;
+    --bg-card: #ffffff;
+    --bg-lane: #f8fafc;
+    --border-subtle: #dde3f0;
+    --border-medium: #b8c4d8;
+    --text-primary: #1a1d2e;
+    --text-secondary: #4a5070;
+    --text-muted: #7880a0;
 
-    --color-lambda: #FF9900;
-    --color-s3: #3F8624;
+    --color-lambda: #d97706;
+    --color-s3: #2d7a17;
     --color-dynamo: #3B48CC;
-    --color-bedrock: #8B5CF6;
-    --color-opensearch: #00BFA5;
-    --color-cognito: #DD344C;
-    --color-apigw: #E7157B;
-    --color-cloudfront: #FF6B35;
-    --color-browser: #4A90D9;
-    --color-iam: #DD344C;
+    --color-bedrock: #7c3aed;
+    --color-opensearch: #0d9488;
+    --color-cognito: #c8102e;
+    --color-apigw: #c01466;
+    --color-cloudfront: #ea5c1e;
+    --color-browser: #1a6bb5;
+    --color-iam: #c8102e;
 
-    --lane-auth: rgba(221,52,76,0.06);
-    --lane-upload: rgba(63,134,36,0.06);
-    --lane-ingest: rgba(255,153,0,0.06);
-    --lane-query: rgba(139,92,246,0.06);
-    --lane-frontend: rgba(74,144,217,0.06);
-    --lane-vector: rgba(0,191,165,0.06);
+    --lane-auth: rgba(221,52,76,0.05);
+    --lane-upload: rgba(63,134,36,0.05);
+    --lane-ingest: rgba(255,153,0,0.05);
+    --lane-query: rgba(139,92,246,0.05);
+    --lane-frontend: rgba(74,144,217,0.05);
+    --lane-vector: rgba(0,191,165,0.05);
 
-    --lane-auth-border: rgba(221,52,76,0.35);
-    --lane-upload-border: rgba(63,134,36,0.35);
-    --lane-ingest-border: rgba(255,153,0,0.35);
-    --lane-query-border: rgba(139,92,246,0.35);
-    --lane-frontend-border: rgba(74,144,217,0.35);
-    --lane-vector-border: rgba(0,191,165,0.35);
+    --lane-auth-border: rgba(221,52,76,0.22);
+    --lane-upload-border: rgba(63,134,36,0.22);
+    --lane-ingest-border: rgba(255,153,0,0.22);
+    --lane-query-border: rgba(139,92,246,0.22);
+    --lane-frontend-border: rgba(74,144,217,0.22);
+    --lane-vector-border: rgba(0,191,165,0.22);
 
     --radius-sm: 6px;
     --radius-md: 10px;
     --radius-lg: 14px;
-    --shadow-card: 0 2px 12px rgba(0,0,0,0.4);
-    --shadow-node: 0 1px 6px rgba(0,0,0,0.5);
+    --shadow-card: 0 2px 12px rgba(0,0,0,0.07);
+    --shadow-node: 0 1px 6px rgba(0,0,0,0.09);
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -135,32 +135,32 @@
 
   /* Auth lane */
   .lane-auth { border-color: var(--lane-auth-border); background: var(--lane-auth); }
-  .lane-auth .lane-header { background: rgba(221,52,76,0.15); color: #ff6b7a; }
+  .lane-auth .lane-header { background: rgba(221,52,76,0.09); color: #b00d27; }
   .lane-auth .lane-dot { background: var(--color-cognito); }
 
   /* Upload lane */
   .lane-upload { border-color: var(--lane-upload-border); background: var(--lane-upload); }
-  .lane-upload .lane-header { background: rgba(63,134,36,0.15); color: #6fcf5a; }
+  .lane-upload .lane-header { background: rgba(63,134,36,0.09); color: #246012; }
   .lane-upload .lane-dot { background: var(--color-s3); }
 
   /* Ingestion lane */
   .lane-ingest { border-color: var(--lane-ingest-border); background: var(--lane-ingest); }
-  .lane-ingest .lane-header { background: rgba(255,153,0,0.15); color: #ffb84d; }
+  .lane-ingest .lane-header { background: rgba(255,153,0,0.09); color: #b06000; }
   .lane-ingest .lane-dot { background: var(--color-lambda); }
 
   /* Query lane */
   .lane-query { border-color: var(--lane-query-border); background: var(--lane-query); }
-  .lane-query .lane-header { background: rgba(139,92,246,0.15); color: #b08dff; }
+  .lane-query .lane-header { background: rgba(139,92,246,0.09); color: #6d28d9; }
   .lane-query .lane-dot { background: var(--color-bedrock); }
 
   /* Frontend lane */
   .lane-frontend { border-color: var(--lane-frontend-border); background: var(--lane-frontend); }
-  .lane-frontend .lane-header { background: rgba(74,144,217,0.15); color: #79b8ff; }
+  .lane-frontend .lane-header { background: rgba(74,144,217,0.09); color: #1a5fa0; }
   .lane-frontend .lane-dot { background: var(--color-browser); }
 
   /* Vector lane */
   .lane-vector { border-color: var(--lane-vector-border); background: var(--lane-vector); }
-  .lane-vector .lane-header { background: rgba(0,191,165,0.15); color: #26d6c0; }
+  .lane-vector .lane-header { background: rgba(0,191,165,0.09); color: #0a7a6a; }
   .lane-vector .lane-dot { background: var(--color-opensearch); }
 
   /* ─── Service Node ─── */
@@ -191,7 +191,7 @@
   .node:hover {
     border-color: var(--border-medium);
     transform: translateY(-1px);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
     transition: all 0.15s ease;
   }
   .node .icon {
@@ -298,7 +298,7 @@
 
   /* ─── Sub-flow boxes ─── */
   .sub-flow {
-    background: rgba(255,255,255,0.02);
+    background: rgba(0,0,0,0.015);
     border: 1px dashed var(--border-subtle);
     border-radius: var(--radius-md);
     padding: 12px;
@@ -494,7 +494,7 @@
     border-collapse: collapse;
   }
   thead th {
-    background: rgba(255,255,255,0.03);
+    background: rgba(0,0,0,0.03);
     padding: 10px 16px;
     text-align: left;
     font-size: 10.5px;
@@ -505,10 +505,10 @@
     border-bottom: 1px solid var(--border-subtle);
   }
   tbody tr {
-    border-bottom: 1px solid rgba(255,255,255,0.03);
+    border-bottom: 1px solid var(--border-subtle);
   }
   tbody tr:last-child { border-bottom: none; }
-  tbody tr:hover { background: rgba(255,255,255,0.02); }
+  tbody tr:hover { background: rgba(0,0,0,0.02); }
   tbody td {
     padding: 10px 16px;
     font-size: 11.5px;
@@ -694,7 +694,7 @@
           <div style="font-size:10px; font-weight:700; color: #ff6b7a; margin-bottom:6px;">JWT Token Bundle</div>
           <div style="display:flex; flex-direction:column; gap:3px;">
             <div style="display:flex; align-items:center; gap:5px; font-size:10px; color:var(--text-secondary);">
-              <span style="background:rgba(221,52,76,0.15); color:#ff6b7a; font-size:8px; font-weight:700; padding:1px 4px; border-radius:3px;">ID</span>
+              <span style="background:rgba(221,52,76,0.15); color:#be123c; font-size:8px; font-weight:700; padding:1px 4px; border-radius:3px;">ID</span>
               id_token — user claims
             </div>
             <div style="display:flex; align-items:center; gap:5px; font-size:10px; color:var(--text-secondary);">
@@ -702,7 +702,7 @@
               access_token — API calls
             </div>
             <div style="display:flex; align-items:center; gap:5px; font-size:10px; color:var(--text-secondary);">
-              <span style="background:rgba(63,134,36,0.15); color:#6fcf5a; font-size:8px; font-weight:700; padding:1px 4px; border-radius:3px;">REF</span>
+              <span style="background:rgba(63,134,36,0.15); color:#15803d; font-size:8px; font-weight:700; padding:1px 4px; border-radius:3px;">REF</span>
               refresh_token — renew
             </div>
           </div>
@@ -725,7 +725,7 @@
           </div>
           <div class="node-name">API Gateway</div>
           <div class="node-detail">Cognito Authorizer</div>
-          <div class="node-badge" style="background:rgba(221,52,76,0.15); color:#ff6b7a;">JWT Validate</div>
+          <div class="node-badge" style="background:rgba(221,52,76,0.15); color:#be123c;">JWT Validate</div>
         </div>
 
       </div>
@@ -1104,7 +1104,7 @@
         </div>
 
         <div style="margin-left:12px; background: rgba(59,72,204,0.08); border: 1px solid rgba(59,72,204,0.2); border-radius:8px; padding: 8px 12px; font-size:10.5px; color:var(--text-secondary);">
-          <div style="font-weight:700; color:#7b8fff; margin-bottom:3px;">GSI: userId-index</div>
+          <div style="font-weight:700; color:#3730a3; margin-bottom:3px;">GSI: userId-index</div>
           <div>Partition key: userId</div>
           <div>Returns all docs for user</div>
         </div>
@@ -1235,8 +1235,8 @@
             </div>
             <div class="node-name">Bedrock</div>
             <div class="node-detail">Claude Sonnet 4.6<br>Streaming</div>
-            <div class="node-badge" style="background:rgba(139,92,246,0.15); color:#b08dff;">Stream</div>
-            <div class="node-badge" style="background:rgba(220,38,38,0.12); color:#f87171; margin-top:4px;">🛡 Guardrail</div>
+            <div class="node-badge" style="background:rgba(139,92,246,0.15); color:#6d28d9;">Stream</div>
+            <div class="node-badge" style="background:rgba(220,38,38,0.12); color:#b91c1c; margin-top:4px;">🛡 Guardrail</div>
           </div>
         </div>
 
@@ -1246,15 +1246,15 @@
       <div class="sub-flow" style="border-color: rgba(139,92,246,0.2); background: rgba(139,92,246,0.03);">
         <div class="sub-flow-title" style="color: #9a7fcc;">NDJSON Stream Response (tokens arrive progressively)</div>
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
-          <div style="background: rgba(59,72,204,0.08); border: 1px solid rgba(59,72,204,0.2); border-radius:6px; padding:8px 12px; font-size:10.5px; font-family: 'Courier New', monospace; color:#7b8fff;">
+          <div style="background: rgba(59,72,204,0.07); border: 1px solid rgba(59,72,204,0.2); border-radius:6px; padding:8px 12px; font-size:10.5px; font-family: 'Courier New', monospace; color:#3730a3;">
             {"type":"sources","chunks":[...]}</div>
           <div style="display:flex; align-items:center; color:var(--text-muted); font-size:10px;">→</div>
-          <div style="background: rgba(139,92,246,0.08); border: 1px solid rgba(139,92,246,0.2); border-radius:6px; padding:8px 12px; font-size:10.5px; font-family: 'Courier New', monospace; color:#b08dff;">
+          <div style="background: rgba(139,92,246,0.07); border: 1px solid rgba(139,92,246,0.2); border-radius:6px; padding:8px 12px; font-size:10.5px; font-family: 'Courier New', monospace; color:#5b21b6;">
             {"type":"delta","text":"Hello"}<br>
             {"type":"delta","text":" world"}<br>
             {"type":"delta","text":"..."}</div>
           <div style="display:flex; align-items:center; color:var(--text-muted); font-size:10px;">→</div>
-          <div style="background: rgba(63,134,36,0.08); border: 1px solid rgba(63,134,36,0.2); border-radius:6px; padding:8px 12px; font-size:10.5px; font-family: 'Courier New', monospace; color:#6fcf5a;">
+          <div style="background: rgba(63,134,36,0.07); border: 1px solid rgba(63,134,36,0.2); border-radius:6px; padding:8px 12px; font-size:10.5px; font-family: 'Courier New', monospace; color:#166534;">
             {"type":"done"}</div>
           <div style="margin-left:auto; display:flex; align-items:center; gap:6px; font-size:10.5px; color:var(--text-secondary); background: rgba(74,144,217,0.06); border: 1px solid rgba(74,144,217,0.15); border-radius:6px; padding:6px 10px;">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="2" stroke="#4A90D9" stroke-width="2"/><path d="M3 8h18" stroke="#4A90D9" stroke-width="2"/></svg>
@@ -1340,7 +1340,7 @@
               </div>
               <div class="node-name">Claude Haiku 4.5</div>
               <div class="node-detail">Score 0–10 per chunk<br>parallel · keep top 5</div>
-              <div class="node-badge" style="background:rgba(245,158,11,0.15); color:#f59e0b;">Rerank</div>
+              <div class="node-badge" style="background:rgba(245,158,11,0.15); color:#92400e;">Rerank</div>
             </div>
             <div class="node" style="min-width:110px; border-color:rgba(0,191,165,0.3);">
               <div class="icon icon-opensearch">
@@ -1352,7 +1352,7 @@
               </div>
               <div class="node-name">OpenSearch</div>
               <div class="node-detail">terms query<br>±1 neighbours</div>
-              <div class="node-badge" style="background:rgba(0,191,165,0.15); color:#26d6c0;">Expand</div>
+              <div class="node-badge" style="background:rgba(0,191,165,0.15); color:#0a7a6a;">Expand</div>
             </div>
             <div class="node" style="min-width:110px; border-color: rgba(139,92,246,0.3);">
               <div class="icon icon-bedrock">
@@ -1363,7 +1363,7 @@
               </div>
               <div class="node-name">Claude Sonnet 4.6</div>
               <div class="node-detail">Streaming answer<br>+ Guardrail</div>
-              <div class="node-badge" style="background:rgba(139,92,246,0.15); color:#b08dff;">Stream</div>
+              <div class="node-badge" style="background:rgba(139,92,246,0.15); color:#6d28d9;">Stream</div>
             </div>
           </div>
 
@@ -1373,10 +1373,10 @@
         <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; font-size:10.5px; color:var(--text-secondary);">
           <div style="padding:6px 10px; background:rgba(74,144,217,0.07); border:1px solid rgba(74,144,217,0.2); border-radius:6px; display:flex; align-items:center; gap:6px;">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="2" stroke="#4A90D9" stroke-width="2"/><path d="M3 8h18" stroke="#4A90D9" stroke-width="2"/></svg>
-            <strong style="color:#79b8ff;">UI Toggle:</strong> QueryChat.tsx exposes a <code style="background:rgba(74,144,217,0.1); padding:1px 4px; border-radius:3px;">Standard / ✦ Reranked</code> mode button. Both conversation histories are preserved independently when switching. Standard → VITE_QUERY_STREAM_URL · Reranked → VITE_QUERY_STREAM_RERANKED_URL
+            <strong style="color:#1a5fa0;">UI Toggle:</strong> QueryChat.tsx exposes a <code style="background:rgba(74,144,217,0.1); padding:1px 4px; border-radius:3px;">Standard / ✦ Reranked</code> mode button. Both conversation histories are preserved independently when switching. Standard → VITE_QUERY_STREAM_URL · Reranked → VITE_QUERY_STREAM_RERANKED_URL
           </div>
           <div style="padding:6px 10px; background:rgba(0,191,165,0.06); border:1px solid rgba(0,191,165,0.2); border-radius:6px;">
-            <strong style="color:#26d6c0;">Neighbour expansion:</strong> chunkId = <code style="background:rgba(0,191,165,0.1); padding:1px 4px; border-radius:3px;">documentId#index</code> — prev/next fetched by terms query on <code style="background:rgba(0,191,165,0.1); padding:1px 4px; border-radius:3px;">chunkId</code>, merged in document order. Fixes multi-chunk passages (e.g. Activities spanning 2+ chunks).
+            <strong style="color:#0a7a6a;">Neighbour expansion:</strong> chunkId = <code style="background:rgba(0,191,165,0.1); padding:1px 4px; border-radius:3px;">documentId#index</code> — prev/next fetched by terms query on <code style="background:rgba(0,191,165,0.1); padding:1px 4px; border-radius:3px;">chunkId</code>, merged in document order. Fixes multi-chunk passages (e.g. Activities spanning 2+ chunks).
           </div>
         </div>
       </div>
@@ -1388,7 +1388,7 @@
        BEDROCK GUARDRAILS LANE
   ════════════════════════════════════════════ -->
   <div class="swim-lane" style="border-color:rgba(220,38,38,0.25); background:linear-gradient(135deg,rgba(220,38,38,0.04) 0%,rgba(139,92,246,0.04) 100%);">
-    <div class="lane-header" style="color:#f87171; border-bottom-color:rgba(220,38,38,0.2);">
+    <div class="lane-header" style="color:#b91c1c; border-bottom-color:rgba(220,38,38,0.2);">
       <div class="lane-dot" style="background:#ef4444;"></div>
       Bedrock Guardrails — Applied on every InvokeModel / InvokeModelWithResponseStream call
     </div>
@@ -1398,28 +1398,28 @@
 
         <!-- Content Filters -->
         <div style="flex:1; min-width:220px; background:rgba(220,38,38,0.06); border:1px solid rgba(220,38,38,0.2); border-radius:10px; padding:14px;">
-          <div style="font-size:11px; font-weight:700; color:#f87171; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+          <div style="font-size:11px; font-weight:700; color:#b91c1c; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V6L12 2z" stroke="#f87171" stroke-width="1.8" fill="rgba(220,38,38,0.15)"/></svg>
             Content Filters (INPUT + OUTPUT)
           </div>
           <div style="display:flex; flex-direction:column; gap:6px; font-size:10.5px;">
             <div style="display:flex; justify-content:space-between; align-items:center; padding:4px 8px; background:rgba(220,38,38,0.08); border-radius:5px;">
-              <span style="color:var(--text-secondary);">HATE</span><span style="color:#fca5a5; font-weight:600;">MEDIUM</span>
+              <span style="color:var(--text-secondary);">HATE</span><span style="color:#b91c1c; font-weight:600;">MEDIUM</span>
             </div>
             <div style="display:flex; justify-content:space-between; align-items:center; padding:4px 8px; background:rgba(220,38,38,0.08); border-radius:5px;">
-              <span style="color:var(--text-secondary);">VIOLENCE</span><span style="color:#fca5a5; font-weight:600;">MEDIUM</span>
+              <span style="color:var(--text-secondary);">VIOLENCE</span><span style="color:#b91c1c; font-weight:600;">MEDIUM</span>
             </div>
             <div style="display:flex; justify-content:space-between; align-items:center; padding:4px 8px; background:rgba(220,38,38,0.08); border-radius:5px;">
-              <span style="color:var(--text-secondary);">SEXUAL</span><span style="color:#f87171; font-weight:600;">HIGH</span>
+              <span style="color:var(--text-secondary);">SEXUAL</span><span style="color:#b91c1c; font-weight:600;">HIGH</span>
             </div>
             <div style="display:flex; justify-content:space-between; align-items:center; padding:4px 8px; background:rgba(220,38,38,0.08); border-radius:5px;">
-              <span style="color:var(--text-secondary);">INSULTS</span><span style="color:#fca5a5; font-weight:600;">MEDIUM</span>
+              <span style="color:var(--text-secondary);">INSULTS</span><span style="color:#b91c1c; font-weight:600;">MEDIUM</span>
             </div>
             <div style="display:flex; justify-content:space-between; align-items:center; padding:4px 8px; background:rgba(220,38,38,0.08); border-radius:5px;">
-              <span style="color:var(--text-secondary);">MISCONDUCT</span><span style="color:#fca5a5; font-weight:600;">MEDIUM</span>
+              <span style="color:var(--text-secondary);">MISCONDUCT</span><span style="color:#b91c1c; font-weight:600;">MEDIUM</span>
             </div>
             <div style="display:flex; justify-content:space-between; align-items:center; padding:4px 8px; background:rgba(220,38,38,0.08); border-radius:5px;">
-              <span style="color:var(--text-secondary);">PROMPT_ATTACK (input only)</span><span style="color:#f87171; font-weight:600;">HIGH</span>
+              <span style="color:var(--text-secondary);">PROMPT_ATTACK (input only)</span><span style="color:#b91c1c; font-weight:600;">HIGH</span>
             </div>
           </div>
         </div>
@@ -1432,24 +1432,24 @@
           </div>
           <div style="font-size:11px; font-weight:700; color:var(--text-muted); margin-bottom:6px; text-decoration:line-through; opacity:0.6;">OffTopicQuestion</div>
           <div style="font-size:10.5px; color:var(--text-secondary); margin-bottom:8px;">Intentionally removed — topic policy evaluates the raw question in isolation (without document context), causing false positives. E.g. "Who is Sandra?" was blocked when Sandra was a character in the uploaded story.</div>
-          <div style="font-size:10px; color:#f59e0b; padding:6px 8px; background:rgba(245,158,11,0.07); border-radius:5px; border-left:2px solid rgba(245,158,11,0.4);">
+          <div style="font-size:10px; color:#92400e; padding:6px 8px; background:rgba(245,158,11,0.07); border-radius:5px; border-left:2px solid rgba(245,158,11,0.4);">
             ✦ Contextual grounding (0.7 threshold) handles off-topic answers on the output side — no separate denied-topic policy needed.
           </div>
         </div>
 
         <!-- Contextual Grounding -->
         <div style="flex:1; min-width:220px; background:rgba(139,92,246,0.06); border:1px solid rgba(139,92,246,0.25); border-radius:10px; padding:14px;">
-          <div style="font-size:11px; font-weight:700; color:#b08dff; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+          <div style="font-size:11px; font-weight:700; color:#6d28d9; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 4v5c0 4.4-3 8.5-7 9.9C8 20.5 5 16.4 5 12V7l7-4z" stroke="#b08dff" stroke-width="1.8" fill="rgba(139,92,246,0.12)"/><path d="M9 12l2 2 4-4" stroke="#b08dff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             Contextual Grounding (RAG check)
           </div>
           <div style="display:flex; flex-direction:column; gap:8px; font-size:10.5px;">
             <div style="padding:8px; background:rgba(139,92,246,0.08); border-radius:6px;">
-              <div style="font-weight:600; color:#b08dff; margin-bottom:3px;">GROUNDING threshold: 0.7</div>
+              <div style="font-weight:600; color:#6d28d9; margin-bottom:3px;">GROUNDING threshold: 0.7</div>
               <div style="color:var(--text-secondary);">Blocks responses not supported by the retrieved document chunks — prevents hallucinations</div>
             </div>
             <div style="padding:8px; background:rgba(139,92,246,0.08); border-radius:6px;">
-              <div style="font-weight:600; color:#b08dff; margin-bottom:3px;">RELEVANCE threshold: 0.7</div>
+              <div style="font-weight:600; color:#6d28d9; margin-bottom:3px;">RELEVANCE threshold: 0.7</div>
               <div style="color:var(--text-secondary);">Blocks responses that don't address the user's query from the context provided</div>
             </div>
           </div>
@@ -1460,11 +1460,11 @@
       <!-- Blocked messages -->
       <div style="display:flex; gap:10px; flex-wrap:wrap; font-size:10.5px;">
         <div style="flex:1; padding:8px 12px; background:rgba(220,38,38,0.06); border:1px solid rgba(220,38,38,0.15); border-radius:6px;">
-          <span style="color:#f87171; font-weight:600;">Blocked Input: </span>
+          <span style="color:#b91c1c; font-weight:600;">Blocked Input: </span>
           <span style="color:var(--text-secondary); font-family:'Courier New',monospace;">"Your question contains content that cannot be processed. Please rephrase and try again."</span>
         </div>
         <div style="flex:1; padding:8px 12px; background:rgba(220,38,38,0.06); border:1px solid rgba(220,38,38,0.15); border-radius:6px;">
-          <span style="color:#f87171; font-weight:600;">Blocked Output: </span>
+          <span style="color:#b91c1c; font-weight:600;">Blocked Output: </span>
           <span style="color:var(--text-secondary); font-family:'Courier New',monospace;">"The response was blocked because it did not meet content or grounding requirements."</span>
         </div>
       </div>
@@ -1476,7 +1476,7 @@
        PROMPTS LANE
   ════════════════════════════════════════════ -->
   <div class="swim-lane" style="border-color:rgba(16,185,129,0.25); background:linear-gradient(135deg,rgba(16,185,129,0.03) 0%,rgba(6,182,212,0.03) 100%);">
-    <div class="lane-header" style="color:#34d399; border-bottom-color:rgba(16,185,129,0.2);">
+    <div class="lane-header" style="color:#065f46; border-bottom-color:rgba(16,185,129,0.2);">
       <div class="lane-dot" style="background:#10b981;"></div>
       Prompts — Defined in <code style="font-size:10px; background:rgba(16,185,129,0.1); padding:1px 5px; border-radius:3px;">src/common/bedrock.ts</code>
     </div>
@@ -1486,16 +1486,16 @@
       <div style="background:rgba(16,185,129,0.05); border:1px solid rgba(16,185,129,0.2); border-radius:10px; padding:16px;">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
           <div>
-            <div style="font-size:12px; font-weight:700; color:#34d399;">RAG Answer Prompt</div>
+            <div style="font-size:12px; font-weight:700; color:#065f46;">RAG Answer Prompt</div>
             <div style="font-size:10px; color:var(--text-muted);">Used by: <code style="background:rgba(16,185,129,0.1); padding:1px 4px; border-radius:3px;">answerQuestionStream()</code> and <code style="background:rgba(16,185,129,0.1); padding:1px 4px; border-radius:3px;">answerQuestion()</code></div>
           </div>
           <div style="display:flex; gap:6px; flex-wrap:wrap;">
-            <span style="background:rgba(139,92,246,0.1); border:1px solid rgba(139,92,246,0.25); color:#b08dff; font-size:9px; font-weight:700; padding:2px 7px; border-radius:10px;">Claude Sonnet 4.6</span>
-            <span style="background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.25); color:#34d399; font-size:9px; font-weight:700; padding:2px 7px; border-radius:10px;">max_tokens: 700</span>
-            <span style="background:rgba(6,182,212,0.1); border:1px solid rgba(6,182,212,0.25); color:#22d3ee; font-size:9px; font-weight:700; padding:2px 7px; border-radius:10px;">temperature: 0</span>
+            <span style="background:rgba(139,92,246,0.1); border:1px solid rgba(139,92,246,0.25); color:#6d28d9; font-size:9px; font-weight:700; padding:2px 7px; border-radius:10px;">Claude Sonnet 4.6</span>
+            <span style="background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.25); color:#065f46; font-size:9px; font-weight:700; padding:2px 7px; border-radius:10px;">max_tokens: 700</span>
+            <span style="background:rgba(6,182,212,0.1); border:1px solid rgba(6,182,212,0.25); color:#0e7490; font-size:9px; font-weight:700; padding:2px 7px; border-radius:10px;">temperature: 0</span>
           </div>
         </div>
-        <div style="background:rgba(0,0,0,0.25); border:1px solid rgba(16,185,129,0.15); border-radius:7px; padding:12px; font-family:'Courier New',monospace; font-size:10.5px; line-height:1.8; color:#a7f3d0; white-space:pre-wrap;">You are a document assistant.
+        <div style="background:#f0fdf4; border:1px solid rgba(16,185,129,0.25); border-radius:7px; padding:12px; font-family:'Courier New',monospace; font-size:10.5px; line-height:1.8; color:#065f46; white-space:pre-wrap;">You are a document assistant.
 Answer strictly from the supplied context.
 If the answer is not present in the context, say: Not found in document.
 
@@ -1511,7 +1511,7 @@ Question: {user question}</div>
           <span style="padding:3px 8px; background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.15); border-radius:5px;">✦ Deterministic (temperature=0) — no hallucination drift</span>
           <span style="padding:3px 8px; background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.15); border-radius:5px;">✦ Strict grounding instruction — answers only from supplied context</span>
           <span style="padding:3px 8px; background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.15); border-radius:5px;">✦ Explicit fallback phrase — "Not found in document"</span>
-          <span style="padding:3px 8px; background:rgba(220,38,38,0.06); border:1px solid rgba(220,38,38,0.15); border-radius:5px; color:#f87171;">🛡 Guardrail applied — contextual grounding check enforces ≥0.7 score on this output</span>
+          <span style="padding:3px 8px; background:rgba(220,38,38,0.06); border:1px solid rgba(220,38,38,0.15); border-radius:5px; color:#b91c1c;">🛡 Guardrail applied — contextual grounding check enforces ≥0.7 score on this output</span>
         </div>
       </div>
 
@@ -1519,16 +1519,16 @@ Question: {user question}</div>
       <div style="background:rgba(245,158,11,0.05); border:1px solid rgba(245,158,11,0.2); border-radius:10px; padding:16px;">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
           <div>
-            <div style="font-size:12px; font-weight:700; color:#f59e0b;">Reranking Prompt</div>
+            <div style="font-size:12px; font-weight:700; color:#92400e;">Reranking Prompt</div>
             <div style="font-size:10px; color:var(--text-muted);">Used by: <code style="background:rgba(245,158,11,0.1); padding:1px 4px; border-radius:3px;">rerankChunks()</code> — called once per candidate chunk in parallel</div>
           </div>
           <div style="display:flex; gap:6px; flex-wrap:wrap;">
-            <span style="background:rgba(139,92,246,0.1); border:1px solid rgba(139,92,246,0.25); color:#b08dff; font-size:9px; font-weight:700; padding:2px 7px; border-radius:10px;">Claude Haiku 4.5</span>
-            <span style="background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.25); color:#f59e0b; font-size:9px; font-weight:700; padding:2px 7px; border-radius:10px;">max_tokens: 10</span>
-            <span style="background:rgba(6,182,212,0.1); border:1px solid rgba(6,182,212,0.25); color:#22d3ee; font-size:9px; font-weight:700; padding:2px 7px; border-radius:10px;">parallel · 20 calls</span>
+            <span style="background:rgba(139,92,246,0.1); border:1px solid rgba(139,92,246,0.25); color:#6d28d9; font-size:9px; font-weight:700; padding:2px 7px; border-radius:10px;">Claude Haiku 4.5</span>
+            <span style="background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.25); color:#92400e; font-size:9px; font-weight:700; padding:2px 7px; border-radius:10px;">max_tokens: 10</span>
+            <span style="background:rgba(6,182,212,0.1); border:1px solid rgba(6,182,212,0.25); color:#0e7490; font-size:9px; font-weight:700; padding:2px 7px; border-radius:10px;">parallel · 20 calls</span>
           </div>
         </div>
-        <div style="background:rgba(0,0,0,0.25); border:1px solid rgba(245,158,11,0.15); border-radius:7px; padding:12px; font-family:'Courier New',monospace; font-size:10.5px; line-height:1.8; color:#fde68a; white-space:pre-wrap;">Score how relevant this passage is to the question.
+        <div style="background:#fffbeb; border:1px solid rgba(245,158,11,0.3); border-radius:7px; padding:12px; font-family:'Courier New',monospace; font-size:10.5px; line-height:1.8; color:#78350f; white-space:pre-wrap;">Score how relevant this passage is to the question.
 Reply with a single integer 0-10. Nothing else.
 
 Question: {user question}
@@ -1545,15 +1545,15 @@ Score:</div>
       <div style="background:rgba(6,182,212,0.05); border:1px solid rgba(6,182,212,0.2); border-radius:10px; padding:16px;">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
           <div>
-            <div style="font-size:12px; font-weight:700; color:#22d3ee;">Embedding Input</div>
+            <div style="font-size:12px; font-weight:700; color:#0e7490;">Embedding Input</div>
             <div style="font-size:10px; color:var(--text-muted);">Used by: <code style="background:rgba(6,182,212,0.1); padding:1px 4px; border-radius:3px;">embedText()</code> — called at ingest (per chunk) and at query time</div>
           </div>
           <div style="display:flex; gap:6px; flex-wrap:wrap;">
-            <span style="background:rgba(139,92,246,0.1); border:1px solid rgba(139,92,246,0.25); color:#b08dff; font-size:9px; font-weight:700; padding:2px 7px; border-radius:10px;">Titan Embed Text v2</span>
-            <span style="background:rgba(6,182,212,0.1); border:1px solid rgba(6,182,212,0.25); color:#22d3ee; font-size:9px; font-weight:700; padding:2px 7px; border-radius:10px;">1024-dim output</span>
+            <span style="background:rgba(139,92,246,0.1); border:1px solid rgba(139,92,246,0.25); color:#6d28d9; font-size:9px; font-weight:700; padding:2px 7px; border-radius:10px;">Titan Embed Text v2</span>
+            <span style="background:rgba(6,182,212,0.1); border:1px solid rgba(6,182,212,0.25); color:#0e7490; font-size:9px; font-weight:700; padding:2px 7px; border-radius:10px;">1024-dim output</span>
           </div>
         </div>
-        <div style="background:rgba(0,0,0,0.25); border:1px solid rgba(6,182,212,0.15); border-radius:7px; padding:12px; font-family:'Courier New',monospace; font-size:10.5px; line-height:1.8; color:#a5f3fc; white-space:pre-wrap;">{ "inputText": "{raw chunk text | user question}" }</div>
+        <div style="background:#ecfeff; border:1px solid rgba(6,182,212,0.3); border-radius:7px; padding:12px; font-family:'Courier New',monospace; font-size:10.5px; line-height:1.8; color:#0e7490; white-space:pre-wrap;">{ "inputText": "{raw chunk text | user question}" }</div>
         <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap; font-size:10px; color:var(--text-muted);">
           <span style="padding:3px 8px; background:rgba(6,182,212,0.06); border:1px solid rgba(6,182,212,0.15); border-radius:5px;">✦ No system prompt — plain text passed directly</span>
           <span style="padding:3px 8px; background:rgba(6,182,212,0.06); border:1px solid rgba(6,182,212,0.15); border-radius:5px;">✦ Ingest: 1 call per chunk · Query: 1 call per question</span>
@@ -1587,9 +1587,9 @@ Score:</div>
             <div style="font-size:10px; color:var(--text-muted);">HNSW · cosine similarity · knn_vector 1024-dim · AllowFromPublic network policy</div>
           </div>
           <div style="margin-left:auto; display:flex; gap:6px; flex-wrap:wrap;">
-            <span style="background:rgba(0,191,165,0.1); border:1px solid rgba(0,191,165,0.25); color:#26d6c0; font-size:9px; font-weight:700; padding:2px 7px; border-radius:10px;">VECTORSEARCH</span>
+            <span style="background:rgba(0,191,165,0.1); border:1px solid rgba(0,191,165,0.25); color:#0a7a6a; font-size:9px; font-weight:700; padding:2px 7px; border-radius:10px;">VECTORSEARCH</span>
             <span style="background:rgba(255,153,0,0.1); border:1px solid rgba(255,153,0,0.25); color:#FF9900; font-size:9px; font-weight:700; padding:2px 7px; border-radius:10px;">Serverless</span>
-            <span style="background:rgba(221,52,76,0.1); border:1px solid rgba(221,52,76,0.25); color:#ff6b7a; font-size:9px; font-weight:700; padding:2px 7px; border-radius:10px;">IAM Auth</span>
+            <span style="background:rgba(221,52,76,0.1); border:1px solid rgba(221,52,76,0.25); color:#be123c; font-size:9px; font-weight:700; padding:2px 7px; border-radius:10px;">IAM Auth</span>
           </div>
         </div>
         <div class="os-fields">
@@ -1614,8 +1614,8 @@ Score:</div>
             <div class="field-note">raw chunk content</div>
           </div>
           <div class="os-field" style="border-color:rgba(139,92,246,0.3); background:rgba(139,92,246,0.05);">
-            <div class="field-name" style="color:#b08dff;">vector</div>
-            <div class="field-type" style="color:#9a7fcc;">knn_vector · 1024-dim</div>
+            <div class="field-name" style="color:#6d28d9;">vector</div>
+            <div class="field-type" style="color:#5b21b6;">knn_vector · 1024-dim</div>
             <div class="field-note">Titan Embed v2 embeddings</div>
           </div>
         </div>
