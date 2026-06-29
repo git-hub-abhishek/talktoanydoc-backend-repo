@@ -1,0 +1,470 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: TalkToAnyDoc backend
+
+Parameters:
+  CollectionName:
+    Type: String
+    Default: talktoanydoc
+    Description: Name of the OpenSearch Serverless collection (use the collection name, not the collection ID from the endpoint URL)
+
+Globals:
+  Function:
+    Runtime: nodejs20.x
+    Timeout: 60
+    MemorySize: 1024
+    Architectures:
+      - x86_64
+    Environment:
+      Variables:
+        UPLOAD_BUCKET: !Sub "${AWS::StackName}-uploads"
+        DOCUMENT_TABLE: !Ref DocumentTable
+        VECTOR_INDEX: talktodoc-index
+        BEDROCK_EMBED_MODEL_ID: amazon.titan-embed-text-v2:0
+        BEDROCK_CHAT_MODEL_ID: anthropic.claude-sonnet-4-6
+        OPENSEARCH_ENDPOINT: https://ypmi8oshviulgbuud4ml.aoss.eu-west-2.on.aws
+        SIGNED_URL_EXPIRY_SECONDS: '300'
+        MAX_UPLOAD_SIZE_MB: '100'
+        COGNITO_USER_POOL_ID: !Ref UserPool
+        COGNITO_CLIENT_ID: !Ref UserPoolClient
+        GUARDRAIL_ID: !GetAtt BedrockGuardrail.GuardrailId
+        GUARDRAIL_VERSION: DRAFT
+  Api:
+    Cors:
+      AllowMethods: "'GET,POST,OPTIONS'"
+      AllowHeaders: "'Content-Type,Authorization'"
+      AllowOrigin: "'*'"
+    Auth:
+      DefaultAuthorizer: CognitoAuthorizer
+      AddDefaultAuthorizerToCorsPreflight: false
+      Authorizers:
+        CognitoAuthorizer:
+          UserPoolArn: !GetAtt UserPool.Arn
+
+Resources:
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub "${AWS::StackName}-user-pool"
+      AutoVerifiedAttributes:
+        - email
+      UsernameAttributes:
+        - email
+      Schema:
+        - Name: email
+          AttributeDataType: String
+          Mutable: false
+          Required: true
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireUppercase: true
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: true
+      AccountRecoverySetting:
+        RecoveryMechanisms:
+          - Name: verified_email
+            Priority: 1
+
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref UserPool
+      ClientName: !Sub "${AWS::StackName}-client"
+      GenerateSecret: false
+      ExplicitAuthFlows:
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+        - ALLOW_USER_PASSWORD_AUTH
+      PreventUserExistenceErrors: ENABLED
+      RefreshTokenValidity: 30
+      AccessTokenValidity: 60
+      IdTokenValidity: 60
+      TokenValidityUnits:
+        RefreshToken: days
+        AccessToken: minutes
+        IdToken: minutes
+  UploadBucket:
+    Type: AWS::S3::Bucket
+    DependsOn: IngestDocumentFunctionS3UploadPermission
+    Properties:
+      BucketName: !Sub "${AWS::StackName}-uploads"
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      CorsConfiguration:
+        CorsRules:
+          - AllowedOrigins:
+              - https://d1k00magrpmtxw.cloudfront.net
+            AllowedMethods:
+              - PUT
+            AllowedHeaders:
+              - "*"
+            MaxAge: 3000
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Event: s3:ObjectCreated:*
+            Function: !GetAtt IngestDocumentFunction.Arn
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: prefix
+                    Value: uploads/
+
+  DocumentTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: documentId
+          AttributeType: S
+        - AttributeName: userId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: documentId
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: userId-index
+          KeySchema:
+            - AttributeName: userId
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+
+  GeneratePresignedUrlFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      CodeUri: .
+      Handler: dist/handlers/generate-presigned-url.handler
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Sub "${AWS::StackName}-uploads"
+      Events:
+        GenerateUrl:
+          Type: Api
+          Properties:
+            Path: /generate-url
+            Method: get
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  ListDocumentsFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      CodeUri: .
+      Handler: dist/handlers/list-documents.handler
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref DocumentTable
+      Events:
+        ListDocuments:
+          Type: Api
+          Properties:
+            Path: /documents
+            Method: get
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  RegisterDocumentFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      CodeUri: .
+      Handler: dist/handlers/register-document.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DocumentTable
+      Events:
+        RegisterDocument:
+          Type: Api
+          Properties:
+            Path: /documents/register
+            Method: post
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  QueryDocumentRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${AWS::StackName}-query-role"
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: QueryDocumentPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:Query
+                  - dynamodb:Scan
+                Resource:
+                  - !GetAtt DocumentTable.Arn
+                  - !Sub "${DocumentTable.Arn}/index/*"
+              - Effect: Allow
+                Action:
+                  - bedrock:InvokeModel
+                  - bedrock:InvokeModelWithResponseStream
+                  - bedrock:ApplyGuardrail
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - aoss:APIAccessAll
+                Resource: !Sub "arn:aws:aoss:${AWS::Region}:${AWS::AccountId}:collection/ypmi8oshviulgbuud4ml"
+
+  IngestDocumentRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${AWS::StackName}-ingest-role"
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: IngestDocumentPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:DeleteObject
+                  - s3:ListBucket
+                Resource:
+                  - !Sub "arn:aws:s3:::${AWS::StackName}-uploads"
+                  - !Sub "arn:aws:s3:::${AWS::StackName}-uploads/*"
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:Query
+                  - dynamodb:Scan
+                Resource:
+                  - !GetAtt DocumentTable.Arn
+                  - !Sub "${DocumentTable.Arn}/index/*"
+              - Effect: Allow
+                Action:
+                  - bedrock:InvokeModel
+                  - bedrock:ApplyGuardrail
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - aoss:APIAccessAll
+                Resource: !Sub "arn:aws:aoss:${AWS::Region}:${AWS::AccountId}:collection/ypmi8oshviulgbuud4ml"
+
+  OpenSearchNetworkPolicy:
+    Type: AWS::OpenSearchServerless::SecurityPolicy
+    Properties:
+      Name: !Sub "${AWS::StackName}-network"
+      Type: network
+      Policy: !Sub |
+        [
+          {
+            "Description": "Public access for Lambda functions to reach AOSS collection",
+            "Rules": [
+              {
+                "ResourceType": "collection",
+                "Resource": ["collection/${CollectionName}"]
+              },
+              {
+                "ResourceType": "dashboard",
+                "Resource": ["collection/${CollectionName}"]
+              }
+            ],
+            "AllowFromPublic": true
+          }
+        ]
+
+  OpenSearchDataAccessPolicy:
+    Type: AWS::OpenSearchServerless::AccessPolicy
+    Properties:
+      Name: !Sub "${AWS::StackName}-data-access"
+      Type: data
+      Policy: !Sub |
+        [
+          {
+            "Description": "Lambda data access for talktodoc collection",
+            "Rules": [
+              {
+                "ResourceType": "index",
+                "Resource": ["index/${CollectionName}/*"],
+                "Permission": [
+                  "aoss:CreateIndex",
+                  "aoss:DeleteIndex",
+                  "aoss:UpdateIndex",
+                  "aoss:DescribeIndex",
+                  "aoss:ReadDocument",
+                  "aoss:WriteDocument"
+                ]
+              },
+              {
+                "ResourceType": "collection",
+                "Resource": ["collection/${CollectionName}"],
+                "Permission": [
+                  "aoss:DescribeCollectionItems",
+                  "aoss:CreateCollectionItems",
+                  "aoss:UpdateCollectionItems",
+                  "aoss:DeleteCollectionItems"
+                ]
+              }
+            ],
+            "Principal": [
+              "${IngestDocumentRole.Arn}",
+              "${QueryDocumentRole.Arn}"
+            ]
+          }
+        ]
+
+  QueryDocumentFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      CodeUri: .
+      Handler: dist/handlers/query-document.handler
+      Role: !GetAtt QueryDocumentRole.Arn
+      Events:
+        QueryDocument:
+          Type: Api
+          Properties:
+            Path: /query
+            Method: post
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  IngestDocumentFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      CodeUri: .
+      Timeout: 300
+      MemorySize: 2048
+      Handler: dist/handlers/ingest-document.handler
+      Role: !GetAtt IngestDocumentRole.Arn
+
+  IngestDocumentFunctionS3UploadPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref IngestDocumentFunction
+      Action: lambda:InvokeFunction
+      Principal: s3.amazonaws.com
+      SourceArn: !Sub "arn:aws:s3:::${AWS::StackName}-uploads"
+
+  QueryDocumentStreamFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      CodeUri: .
+      Handler: dist/handlers/query-document-stream.handler
+      Role: !GetAtt QueryDocumentRole.Arn
+      FunctionUrlConfig:
+        AuthType: NONE
+        InvokeMode: RESPONSE_STREAM
+        Cors:
+          AllowOrigins:
+            - '*'
+          AllowHeaders:
+            - 'Content-Type'
+            - 'Authorization'
+          AllowMethods:
+            - 'POST'
+
+  QueryDocumentStreamRerankedFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      CodeUri: .
+      Handler: dist/handlers/query-document-stream-reranked.handler
+      Role: !GetAtt QueryDocumentRole.Arn
+      Timeout: 120
+      FunctionUrlConfig:
+        AuthType: NONE
+        InvokeMode: RESPONSE_STREAM
+        Cors:
+          AllowOrigins:
+            - '*'
+          AllowHeaders:
+            - 'Content-Type'
+            - 'Authorization'
+          AllowMethods:
+            - 'POST'
+
+  BedrockGuardrail:
+    Type: AWS::Bedrock::Guardrail
+    Properties:
+      Name: !Sub "${AWS::StackName}-guardrail"
+      Description: "Guardrail for TalkToAnyDoc: content filtering and contextual grounding"
+      BlockedInputMessaging: "Your question contains content that cannot be processed. Please rephrase and try again."
+      BlockedOutputsMessaging: "The response was blocked because it did not meet content or grounding requirements. Please try a different question."
+      ContentPolicyConfig:
+        FiltersConfig:
+          - Type: HATE
+            InputStrength: MEDIUM
+            OutputStrength: MEDIUM
+          - Type: VIOLENCE
+            InputStrength: MEDIUM
+            OutputStrength: MEDIUM
+          - Type: SEXUAL
+            InputStrength: HIGH
+            OutputStrength: HIGH
+          - Type: INSULTS
+            InputStrength: MEDIUM
+            OutputStrength: MEDIUM
+          - Type: MISCONDUCT
+            InputStrength: MEDIUM
+            OutputStrength: MEDIUM
+          - Type: PROMPT_ATTACK
+            InputStrength: HIGH
+            OutputStrength: NONE
+
+Outputs:
+  ApiBaseUrl:
+    Value: !Sub https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod
+  UploadBucketName:
+    Value: !Ref UploadBucket
+  DocumentTableName:
+    Value: !Ref DocumentTable
+  UserPoolId:
+    Description: Cognito User Pool ID
+    Value: !Ref UserPool
+  UserPoolClientId:
+    Description: Cognito User Pool Client ID
+    Value: !Ref UserPoolClient
+  UserPoolArn:
+    Description: Cognito User Pool ARN
+    Value: !GetAtt UserPool.Arn
+  QueryStreamFunctionUrl:
+    Description: Lambda Function URL for streaming query endpoint
+    Value: !GetAtt QueryDocumentStreamFunctionUrl.FunctionUrl
+  QueryStreamRerankedFunctionUrl:
+    Description: Lambda Function URL for reranked streaming query endpoint
+    Value: !GetAtt QueryDocumentStreamRerankedFunctionUrl.FunctionUrl
+  GuardrailId:
+    Description: Bedrock Guardrail ID
+    Value: !GetAtt BedrockGuardrail.GuardrailId

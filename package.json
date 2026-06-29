@@ -1,0 +1,31 @@
+{
+  "name": "talktoanydoc-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AWS Bedrock + S3 + Lambda backend for TalkToAnyDoc",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist .aws-sam",
+    "sam:build": "sam build",
+    "sam:local": "sam local start-api",
+    "sam:deploy:guided": "sam deploy --guided"
+  },
+  "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.821.0",
+    "@aws-sdk/client-dynamodb": "^3.821.0",
+    "@aws-sdk/client-s3": "^3.821.0",
+    "@aws-sdk/lib-dynamodb": "^3.821.0",
+    "@aws-sdk/s3-request-presigner": "^3.821.0",
+    "@opensearch-project/opensearch": "^2.12.0",
+    "aws-jwt-verify": "^5.2.1",
+    "mammoth": "^1.12.0",
+    "pdf-parse": "^1.1.1",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.149",
+    "@types/node": "^22.15.30",
+    "@types/pdf-parse": "^1.1.5",
+    "typescript": "^5.8.3"
+  }
+}

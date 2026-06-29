@@ -1,0 +1,25 @@
+{
+  "settings": {
+    "index": {
+      "knn": true,
+      "number_of_shards": 1,
+      "number_of_replicas": 1
+    }
+  },
+  "mappings": {
+    "properties": {
+      "documentId": { "type": "keyword" },
+      "chunkId": { "type": "keyword" },
+      "fileName": { "type": "keyword" },
+      "text": { "type": "text" },
+      "vector": {
+        "type": "knn_vector",
+        "dimension": 1024,
+        "method": {
+          "name": "hnsw",
+          "space_type": "cosinesimil"
+        }
+      }
+    }
+  }
+}
