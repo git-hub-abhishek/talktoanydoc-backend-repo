@@ -1,11 +1,9 @@
 node_modules/
 dist/
 .aws-sam/
-.env
 coverage/
 scripts/
 .env.local
 *.node_modules
 .calude/*
-CLAUDE.md
 documents/*
