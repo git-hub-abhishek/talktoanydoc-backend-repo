@@ -540,6 +540,170 @@
     vertical-align: middle;
   }
 
+  /* ─── Section headings ─── */
+  .section-heading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 32px 0 14px;
+  }
+  .section-heading .section-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 20px;
+    padding: 5px 14px 5px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    box-shadow: var(--shadow-node);
+  }
+  .section-heading .section-pill .pill-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .section-heading hr {
+    flex: 1;
+    border: none;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  /* ─── Customer Experience journey ─── */
+  .cx-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .cx-journey {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+  }
+  .cx-step {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 14px 18px;
+    text-align: center;
+    position: relative;
+    min-width: 0;
+    border-right: 1px solid var(--border-subtle);
+    transition: background 0.15s;
+  }
+  .cx-step:last-child { border-right: none; }
+  .cx-step:hover { background: rgba(0,0,0,0.02); }
+  .cx-step-num {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+  }
+  .cx-step-icon {
+    font-size: 22px;
+    margin-bottom: 8px;
+    line-height: 1;
+  }
+  .cx-step-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 5px;
+    line-height: 1.3;
+  }
+  .cx-step-desc {
+    font-size: 10.5px;
+    color: var(--text-secondary);
+    line-height: 1.55;
+  }
+  .cx-step-tag {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 8px;
+    letter-spacing: 0.04em;
+  }
+  /* connector arrow between steps */
+  .cx-connector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 0;
+    overflow: visible;
+    position: relative;
+    z-index: 2;
+  }
+  .cx-connector-arrow {
+    width: 18px;
+    height: 18px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 10px;
+    flex-shrink: 0;
+    margin: 0 -9px;
+    z-index: 3;
+  }
+
+  /* Outcome bar below journey */
+  .cx-outcome-bar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+  .cx-outcome {
+    flex: 1;
+    min-width: 160px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    box-shadow: var(--shadow-node);
+  }
+  .cx-outcome-label {
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 5px;
+  }
+  .cx-outcome-value {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 3px;
+  }
+  .cx-outcome-sub {
+    font-size: 10.5px;
+    color: var(--text-secondary);
+  }
+
   /* ─── Inline SVG Icons ─── */
   .svg-icon { display: block; }
 
@@ -562,10 +726,134 @@
 <div class="page-header">
   <div class="badge">AWS Serverless Architecture</div>
   <h1>TalkToAnyDoc</h1>
-  <p>End-to-end serverless document Q&amp;A — RAG pipeline with streaming inference on AWS</p>
+  <p>Customer Experience journey &amp; Technical Architecture — serverless RAG pipeline with streaming inference on AWS</p>
 </div>
 
 <div class="diagram-wrapper">
+
+  <!-- ═══════════════════════════════════════════
+       CUSTOMER EXPERIENCE SECTION
+  ════════════════════════════════════════════ -->
+  <div class="section-heading">
+    <div class="section-pill">
+      <div class="pill-dot" style="background:#1a6bb5;"></div>
+      Customer Experience
+    </div>
+    <hr>
+  </div>
+
+  <div class="cx-wrapper">
+
+    <!-- Journey steps -->
+    <div class="cx-journey">
+
+      <!-- Step 1: Sign Up -->
+      <div class="cx-step">
+        <div class="cx-step-num" style="background:#1a6bb5;">1</div>
+        <div class="cx-step-icon">👤</div>
+        <div class="cx-step-title">Sign Up &amp; Log In</div>
+        <div class="cx-step-desc">Customer creates an account with email and password. Receives a verification email. Logs in securely — session tokens auto-refresh in the background.</div>
+        <span class="cx-step-tag" style="background:rgba(26,107,181,0.1); color:#1a5fa0;">Cognito · Amplify SDK</span>
+      </div>
+
+      <div class="cx-connector"><div class="cx-connector-arrow">›</div></div>
+
+      <!-- Step 2: Upload Document -->
+      <div class="cx-step">
+        <div class="cx-step-num" style="background:#2d7a17;">2</div>
+        <div class="cx-step-icon">📄</div>
+        <div class="cx-step-title">Upload a Document</div>
+        <div class="cx-step-desc">Customer selects a PDF or DOCX (up to 100 MB). The file uploads directly to S3 via a pre-signed URL — no file data passes through the server.</div>
+        <span class="cx-step-tag" style="background:rgba(45,122,23,0.1); color:#1a5c0a;">S3 · Pre-signed URL</span>
+      </div>
+
+      <div class="cx-connector"><div class="cx-connector-arrow">›</div></div>
+
+      <!-- Step 3: Wait for Processing -->
+      <div class="cx-step">
+        <div class="cx-step-num" style="background:#d97706;">3</div>
+        <div class="cx-step-icon">⚙️</div>
+        <div class="cx-step-title">Document Processed</div>
+        <div class="cx-step-desc">The app shows a "Processing…" status. Behind the scenes the document is read, split into chunks, each chunk is embedded and indexed. Status flips to "Ready" — typically in seconds.</div>
+        <span class="cx-step-tag" style="background:rgba(217,119,6,0.1); color:#92400e;">Auto-triggered · No wait needed</span>
+      </div>
+
+      <div class="cx-connector"><div class="cx-connector-arrow">›</div></div>
+
+      <!-- Step 4: Ask Questions -->
+      <div class="cx-step">
+        <div class="cx-step-num" style="background:#7c3aed;">4</div>
+        <div class="cx-step-icon">💬</div>
+        <div class="cx-step-title">Ask Questions</div>
+        <div class="cx-step-desc">Customer types any question about the document. Answers stream word-by-word in real time. Source chunks are cited so the customer can verify every answer.</div>
+        <span class="cx-step-tag" style="background:rgba(124,58,237,0.1); color:#6d28d9;">Streaming · Source-cited</span>
+      </div>
+
+      <div class="cx-connector"><div class="cx-connector-arrow">›</div></div>
+
+      <!-- Step 5: Compare Quality -->
+      <div class="cx-step">
+        <div class="cx-step-num" style="background:#0a7a6a;">5</div>
+        <div class="cx-step-icon">✦</div>
+        <div class="cx-step-title">Toggle Better Answers</div>
+        <div class="cx-step-desc">Switch to Reranked mode for harder questions — the AI re-scores 20 candidate passages and expands context into adjacent chunks before answering. Both histories are preserved.</div>
+        <span class="cx-step-tag" style="background:rgba(10,122,106,0.1); color:#0a7a6a;">Standard vs Reranked toggle</span>
+      </div>
+
+      <div class="cx-connector"><div class="cx-connector-arrow">›</div></div>
+
+      <!-- Step 6: Safe & Grounded -->
+      <div class="cx-step">
+        <div class="cx-step-num" style="background:#be123c;">6</div>
+        <div class="cx-step-icon">🛡</div>
+        <div class="cx-step-title">Safe &amp; Grounded</div>
+        <div class="cx-step-desc">Every answer is checked by Bedrock Guardrails. Harmful content is blocked before it reaches the customer. Answers stay grounded in the document — the AI cannot make things up.</div>
+        <span class="cx-step-tag" style="background:rgba(190,18,60,0.1); color:#be123c;">Guardrails · Content filters</span>
+      </div>
+
+    </div>
+
+    <!-- Outcome bar -->
+    <div class="cx-outcome-bar">
+      <div class="cx-outcome">
+        <div class="cx-outcome-label">Time to first answer</div>
+        <div class="cx-outcome-value">~2–4 seconds</div>
+        <div class="cx-outcome-sub">First token streams within seconds of submitting the question</div>
+      </div>
+      <div class="cx-outcome">
+        <div class="cx-outcome-label">Document types supported</div>
+        <div class="cx-outcome-value">PDF · DOCX · TXT</div>
+        <div class="cx-outcome-sub">Up to 100 MB per document</div>
+      </div>
+      <div class="cx-outcome">
+        <div class="cx-outcome-label">Answer quality modes</div>
+        <div class="cx-outcome-value">Standard &amp; Reranked</div>
+        <div class="cx-outcome-sub">Toggle mid-conversation — histories preserved independently</div>
+      </div>
+      <div class="cx-outcome">
+        <div class="cx-outcome-label">Safety</div>
+        <div class="cx-outcome-value">Bedrock Guardrails</div>
+        <div class="cx-outcome-sub">Content filters on every request — hate, violence, prompt injection blocked</div>
+      </div>
+      <div class="cx-outcome">
+        <div class="cx-outcome-label">Data ownership</div>
+        <div class="cx-outcome-value">Per-user isolation</div>
+        <div class="cx-outcome-sub">Documents are scoped to the uploading user — no cross-user access</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       TECHNICAL ARCHITECTURE SECTION HEADING
+  ════════════════════════════════════════════ -->
+  <div class="section-heading" style="margin-top:40px;">
+    <div class="section-pill">
+      <div class="pill-dot" style="background:#d97706;"></div>
+      Technical Architecture
+    </div>
+    <hr>
+  </div>
 
   <!-- ═══════════════════════════════════════════
        FRONTEND HOSTING LANE
@@ -1735,7 +2023,7 @@ Score:</div>
 
   <!-- Footer -->
   <div style="text-align:center; padding: 16px; font-size:10.5px; color:var(--text-muted);">
-    TalkToAnyDoc — AWS Serverless Architecture · Updated 2026-06-19 · Well-Architected: Serverless, RAG, Streaming, Reranking, Neighbour Expansion
+    TalkToAnyDoc — Customer Experience &amp; Technical Architecture · Updated 2026-06-19 · Well-Architected: Serverless, RAG, Streaming, Reranking, Neighbour Expansion
   </div>
 
 </div><!-- /diagram-wrapper -->

@@ -22,6 +22,11 @@ export function unauthorized(message: string): APIGatewayProxyResult {
   return response(401, { message });
 }
 
+/** 404 Not Found — requested resource does not exist. */
+export function notFound(message: string): APIGatewayProxyResult {
+  return response(404, { message });
+}
+
 /** 500 Internal Server Error — unexpected failure; details are logged, not exposed. */
 export function serverError(message: string): APIGatewayProxyResult {
   return response(500, { message });

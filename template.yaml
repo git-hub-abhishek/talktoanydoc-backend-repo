@@ -33,7 +33,7 @@ Globals:
         QUERY_CONFIG_PARAM: !Ref QueryConfigParameter
   Api:
     Cors:
-      AllowMethods: "'GET,POST,OPTIONS'"
+      AllowMethods: "'GET,POST,DELETE,OPTIONS'"
       AllowHeaders: "'Content-Type,Authorization'"
       AllowOrigin: "'*'"
     Auth:
@@ -192,6 +192,56 @@ Resources:
             Auth:
               Authorizer: CognitoAuthorizer
 
+  DeleteDocumentFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      CodeUri: .
+      Handler: dist/handlers/delete-document.handler
+      Role: !GetAtt DeleteDocumentRole.Arn
+      Events:
+        DeleteDocument:
+          Type: Api
+          Properties:
+            Path: /documents/{documentId}
+            Method: delete
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  DeleteDocumentRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${AWS::StackName}-delete-role"
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: DeleteDocumentPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:DeleteItem
+                Resource: !GetAtt DocumentTable.Arn
+              - Effect: Allow
+                Action:
+                  - aoss:APIAccessAll
+                Resource: !Sub "arn:aws:aoss:${AWS::Region}:${AWS::AccountId}:collection/ypmi8oshviulgbuud4ml"
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                Resource:
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/talktodoc/query-config"
+
   QueryDocumentRole:
     Type: AWS::IAM::Role
     Properties:
@@ -345,7 +395,8 @@ Resources:
             ],
             "Principal": [
               "${IngestDocumentRole.Arn}",
-              "${QueryDocumentRole.Arn}"
+              "${QueryDocumentRole.Arn}",
+              "${DeleteDocumentRole.Arn}"
             ]
           }
         ]

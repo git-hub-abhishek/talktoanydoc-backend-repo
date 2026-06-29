@@ -13,7 +13,7 @@
  */
 
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, PutCommand, GetCommand, UpdateCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient, PutCommand, GetCommand, UpdateCommand, QueryCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb';
 import { config } from './config';
 import { DocumentRecord } from '../types/document';
 
@@ -42,6 +42,11 @@ export async function updateDocumentStatus(documentId: string, status: DocumentR
     ExpressionAttributeNames: { '#status': 'status' },
     ExpressionAttributeValues: { ':status': status, ':updatedAt': new Date().toISOString() }
   }));
+}
+
+/** Delete a document record by its primary key. */
+export async function deleteDocument(documentId: string): Promise<void> {
+  await client.send(new DeleteCommand({ TableName: config.documentTable, Key: { documentId } }));
 }
 
 /** List all documents owned by a user via the userId GSI. */

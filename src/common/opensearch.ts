@@ -28,6 +28,37 @@ const client = new Client({
 });
 
 /**
+ * Delete all chunks belonging to a document from the vector index.
+ *
+ * OpenSearch Serverless VECTORSEARCH collections do not support deleteByQuery,
+ * so we: (1) scroll all _ids for the documentId using a term filter (no vector
+ * scoring needed), (2) bulk-delete them in one request.
+ *
+ * This is called by the delete-document handler after removing the DynamoDB
+ * record so that orphaned vectors don't accumulate in the index.
+ */
+export async function deleteChunksByDocumentId(documentId: string): Promise<number> {
+  // Fetch all chunk _ids for this document — size 1000 covers even very long docs.
+  const result = await client.search({
+    index: config.vectorIndex,
+    body: {
+      size: 1000,
+      _source: false,  // we only need the _id, not the document body
+      query: { term: { documentId } }
+    }
+  });
+
+  const hits = ((result as any).body?.hits?.hits || (result as any).hits?.hits || []) as Array<{ _id: string }>;
+  if (hits.length === 0) return 0;
+
+  // Bulk delete — each action is a { delete: { _index, _id } } header with no body line.
+  const body = hits.flatMap(h => [{ delete: { _index: config.vectorIndex, _id: h._id } }]);
+  await client.bulk({ body });
+
+  return hits.length;
+}
+
+/**
  * Create the vector index with the correct knn_vector mapping if it does not
  * already exist. Must be called before the first upsert in every ingestion.
  *
