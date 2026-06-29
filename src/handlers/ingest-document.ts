@@ -7,6 +7,7 @@ import { chunkText } from '../common/chunker';
 import { embedText } from '../common/bedrock';
 import { ensureIndex, upsertChunkDocument } from '../common/opensearch';
 import { updateDocumentStatus } from '../common/dynamo';
+import { getIngestConfig } from '../common/ssm';
 
 const s3 = new S3Client({ region: config.awsRegion });
 
@@ -33,8 +34,9 @@ export async function handler(event: S3Event, context: Context): Promise<void> {
       const text = await extractTextFromBuffer(fileName, buffer);
       logger.info('Text extracted', { charCount: text.length });
 
-      const chunks = chunkText(documentId, text);
-      logger.info('Text chunked', { chunkCount: chunks.length });
+      const ingestConfig = await getIngestConfig();
+      const chunks = chunkText(documentId, text, ingestConfig.chunkSize, ingestConfig.overlap);
+      logger.info('Text chunked', { chunkCount: chunks.length, chunkSize: ingestConfig.chunkSize, overlap: ingestConfig.overlap });
 
       await ensureIndex();
 

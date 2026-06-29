@@ -51,7 +51,7 @@ export async function embedText(text: string): Promise<number[]> {
  * @param question      - The user's question.
  * @param contextChunks - Top-k text chunks retrieved from OpenSearch.
  */
-export async function* answerQuestionStream(question: string, contextChunks: string[]): AsyncGenerator<string> {
+export async function* answerQuestionStream(question: string, contextChunks: string[], maxTokens = 700): AsyncGenerator<string> {
   const prompt = [
     'You are a document assistant.',
     'Answer strictly from the supplied context.',
@@ -65,7 +65,7 @@ export async function* answerQuestionStream(question: string, contextChunks: str
 
   const body = {
     anthropic_version: 'bedrock-2023-05-31',
-    max_tokens: 700,
+    max_tokens: maxTokens,
     temperature: 0,  // deterministic output — no creative variation
     messages: [{ role: 'user', content: [{ type: 'text', text: prompt }] }]
   };

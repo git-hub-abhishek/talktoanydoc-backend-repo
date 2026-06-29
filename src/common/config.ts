@@ -43,6 +43,12 @@ export const config = {
   /** Guardrail version — DRAFT during development, a numeric version after publishing. */
   guardrailVersion: process.env.GUARDRAIL_VERSION || 'DRAFT',
 
+  /** SSM parameter path for ingestion config (chunkSize, overlap). */
+  ingestConfigParam: required('INGEST_CONFIG_PARAM'),
+
+  /** SSM parameter path for query config (kNeighbours, rerankedCandidates, maxTokens). */
+  queryConfigParam: required('QUERY_CONFIG_PARAM'),
+
   /** Maximum file size accepted by /generate-url (configurable, default 100 MB). */
   maxUploadSizeMb: Number(process.env.MAX_UPLOAD_SIZE_MB || '100'),
 

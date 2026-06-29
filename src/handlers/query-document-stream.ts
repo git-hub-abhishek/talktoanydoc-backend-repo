@@ -4,6 +4,7 @@ import { getDocument } from '../common/dynamo';
 import { embedText, answerQuestionStream } from '../common/bedrock';
 import { searchRelevantChunks } from '../common/opensearch';
 import { config } from '../common/config';
+import { getQueryConfig } from '../common/ssm';
 
 const verifier = CognitoJwtVerifier.create({
   userPoolId: config.cognitoUserPoolId,
@@ -69,19 +70,21 @@ export const handler = awslambda.streamifyResponse(
         return;
       }
 
+      const queryConfig = await getQueryConfig();
+
       logger.info('Embedding question');
       const queryVector = await embedText(body.question);
 
-      logger.info('Searching OpenSearch', { documentId: body.documentId });
-      const hits = await searchRelevantChunks(body.documentId, queryVector, 5);
+      logger.info('Searching OpenSearch', { documentId: body.documentId, k: queryConfig.kNeighbours });
+      const hits = await searchRelevantChunks(body.documentId, queryVector, queryConfig.kNeighbours);
       logger.info('OpenSearch results', { hitCount: hits.length });
 
       const sources = hits.map(h => ({ chunkId: h.chunkId, title: h.fileName }));
       send({ type: 'sources', sources });
 
-      logger.info('Starting Bedrock stream', { model: config.bedrockChatModelId, guardrailId: config.guardrailId });
+      logger.info('Starting Bedrock stream', { model: config.bedrockChatModelId, guardrailId: config.guardrailId, maxTokens: queryConfig.maxTokens });
       let deltaCount = 0;
-      for await (const text of answerQuestionStream(body.question, hits.map(h => h.text))) {
+      for await (const text of answerQuestionStream(body.question, hits.map(h => h.text), queryConfig.maxTokens)) {
         send({ type: 'delta', text });
         deltaCount++;
       }

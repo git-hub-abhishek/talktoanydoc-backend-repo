@@ -29,6 +29,8 @@ Globals:
         COGNITO_CLIENT_ID: !Ref UserPoolClient
         GUARDRAIL_ID: !GetAtt BedrockGuardrail.GuardrailId
         GUARDRAIL_VERSION: DRAFT
+        INGEST_CONFIG_PARAM: !Ref IngestConfigParameter
+        QUERY_CONFIG_PARAM: !Ref QueryConfigParameter
   Api:
     Cors:
       AllowMethods: "'GET,POST,OPTIONS'"
@@ -226,6 +228,11 @@ Resources:
                 Action:
                   - aoss:APIAccessAll
                 Resource: !Sub "arn:aws:aoss:${AWS::Region}:${AWS::AccountId}:collection/ypmi8oshviulgbuud4ml"
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                Resource:
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/talktodoc/query-config"
 
   IngestDocumentRole:
     Type: AWS::IAM::Role
@@ -274,6 +281,11 @@ Resources:
                 Action:
                   - aoss:APIAccessAll
                 Resource: !Sub "arn:aws:aoss:${AWS::Region}:${AWS::AccountId}:collection/ypmi8oshviulgbuud4ml"
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                Resource:
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/talktodoc/ingest-config"
 
   OpenSearchNetworkPolicy:
     Type: AWS::OpenSearchServerless::SecurityPolicy
@@ -415,6 +427,22 @@ Resources:
           AllowMethods:
             - 'POST'
 
+  IngestConfigParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /talktodoc/ingest-config
+      Type: String
+      Description: "Chunking settings for the ingestion pipeline"
+      Value: '{"chunkSize":1000,"overlap":150}'
+
+  QueryConfigParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /talktodoc/query-config
+      Type: String
+      Description: "Retrieval and generation settings for query handlers"
+      Value: '{"kNeighbours":5,"rerankedCandidates":20,"maxTokens":700}'
+
   BedrockGuardrail:
     Type: AWS::Bedrock::Guardrail
     Properties:
@@ -468,3 +496,9 @@ Outputs:
   GuardrailId:
     Description: Bedrock Guardrail ID
     Value: !GetAtt BedrockGuardrail.GuardrailId
+  IngestConfigParameterName:
+    Description: SSM parameter path for ingest config (chunkSize, overlap)
+    Value: !Ref IngestConfigParameter
+  QueryConfigParameterName:
+    Description: SSM parameter path for query config (kNeighbours, rerankedCandidates, maxTokens)
+    Value: !Ref QueryConfigParameter

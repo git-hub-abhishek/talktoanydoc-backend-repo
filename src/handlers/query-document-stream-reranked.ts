@@ -23,6 +23,7 @@ import { getDocument } from '../common/dynamo';
 import { embedText, rerankChunks, answerQuestionStream } from '../common/bedrock';
 import { searchRelevantChunks, expandWithNeighbours } from '../common/opensearch';
 import { config } from '../common/config';
+import { getQueryConfig } from '../common/ssm';
 
 const verifier = CognitoJwtVerifier.create({
   userPoolId: config.cognitoUserPoolId,
@@ -88,17 +89,19 @@ export const handler = awslambda.streamifyResponse(
         return;
       }
 
+      const queryConfig = await getQueryConfig();
+
       logger.info('Embedding question');
       const queryVector = await embedText(body.question);
 
-      // Fetch a wider candidate set (20) so the reranker has more to choose from.
-      logger.info('Searching OpenSearch — wide retrieval for reranking', { documentId: body.documentId, k: 20 });
-      const candidates = await searchRelevantChunks(body.documentId, queryVector, 20);
+      // Fetch a wider candidate set so the reranker has more to choose from.
+      logger.info('Searching OpenSearch — wide retrieval for reranking', { documentId: body.documentId, k: queryConfig.rerankedCandidates });
+      const candidates = await searchRelevantChunks(body.documentId, queryVector, queryConfig.rerankedCandidates);
       logger.info('OpenSearch candidates', { count: candidates.length });
 
-      // Rerank candidates with Claude Haiku and keep top 5.
-      logger.info('Reranking candidates with Claude Haiku', { candidates: candidates.length, topN: 5 });
-      const topIndices = await rerankChunks(body.question, candidates, 5);
+      // Rerank candidates with Claude Haiku and keep top kNeighbours.
+      logger.info('Reranking candidates with Claude Haiku', { candidates: candidates.length, topN: queryConfig.kNeighbours });
+      const topIndices = await rerankChunks(body.question, candidates, queryConfig.kNeighbours);
       const reranked = topIndices.map(i => candidates[i]);
       logger.info('Reranking complete', { selectedIndices: topIndices });
 
@@ -110,9 +113,9 @@ export const handler = awslambda.streamifyResponse(
       const sources = hits.map(h => ({ chunkId: h.chunkId, title: h.fileName }));
       send({ type: 'sources', sources });
 
-      logger.info('Starting Bedrock stream', { model: config.bedrockChatModelId, guardrailId: config.guardrailId });
+      logger.info('Starting Bedrock stream', { model: config.bedrockChatModelId, guardrailId: config.guardrailId, maxTokens: queryConfig.maxTokens });
       let deltaCount = 0;
-      for await (const text of answerQuestionStream(body.question, hits.map(h => h.text))) {
+      for await (const text of answerQuestionStream(body.question, hits.map(h => h.text), queryConfig.maxTokens)) {
         send({ type: 'delta', text });
         deltaCount++;
       }
