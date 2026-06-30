@@ -6,9 +6,18 @@
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf dist .aws-sam",
+    "test": "jest",
+    "test:watch": "jest --watch",
     "sam:build": "sam build",
     "sam:local": "sam local start-api",
     "sam:deploy:guided": "sam deploy --guided"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "roots": ["<rootDir>/src"],
+    "testMatch": ["**/__tests__/**/*.test.ts"],
+    "setupFiles": ["<rootDir>/src/__tests__/setup.ts"]
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.821.0",
@@ -25,8 +34,11 @@
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.149",
+    "@types/jest": "^30.0.0",
     "@types/node": "^22.15.30",
     "@types/pdf-parse": "^1.1.5",
+    "jest": "^30.4.2",
+    "ts-jest": "^29.4.11",
     "typescript": "^5.8.3"
   }
 }
